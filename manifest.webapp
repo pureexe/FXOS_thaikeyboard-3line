@@ -3,25 +3,25 @@
   "description": "for Gaia v1.2 or newer",
   "type": "privileged",
   "role": "input",
-  "launch_path": "/settings.html",
+  "launch_path": "/FXOS_thaikeyboard-3line/settings.html",
   "developer": {
     "name": "Pakkapon Phongthawee",
     "url": "https://github.com/pureexe"
   },
   "permissions": {
     "input": {
-      "description": "To send key events"
+      "description": "To send key thai language"
     }
   },
 "icons": {
-    "60": "/style/images/keyboard.png",
-    "90": "/style/images/keyboard.png",
-    "120": "/style/images/keyboard.png",
-    "128": "/style/images/keyboard.png"
+    "60": "/FXOS_thaikeyboard-3line/style/images/keyboard.png",
+    "90": "/FXOS_thaikeyboard-3line/style/images/keyboard.png",
+    "120": "/FXOS_thaikeyboard-3line/style/images/keyboard.png",
+    "128": "/FXOS_thaikeyboard-3line/style/images/keyboard.png"
   },
   "inputs": {
     "english": {
-      "launch_path": "/index.html#en",
+      "launch_path": "/FXOS_thaikeyboard-3line/index.html#en",
       "name": "Thai - 3 line",
       "description": "Thai - 3 line",
       "types": ["text", "url", "number"]
