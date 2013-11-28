@@ -7,6 +7,11 @@
         "name": "Pakkapon Phongthawee",
         "url": "http://github.com/pureexe"
     },
+      "permissions": {
+    "input": {
+      "description": "To send key events"
+    }
+  },
 	"icons": {
     "60": "/FXOS_thaikeyboard-3line/style/images/keyboard.png",
     "90": "/FXOS_thaikeyboard-3line/style/images/keyboard.png",
