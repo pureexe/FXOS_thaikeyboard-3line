@@ -8,10 +8,10 @@
         "url": "http://github.com/pureexe"
     },
 	"icons": {
-    "60": "/style/images/keyboard.png",
-    "90": "/style/images/keyboard.png",
-    "120": "/style/images/keyboard.png",
-    "128": "/style/images/keyboard.png"
+    "60": "/FXOS_thaikeyboard-3line/style/images/keyboard.png",
+    "90": "/FXOS_thaikeyboard-3line/style/images/keyboard.png",
+    "120": "/FXOS_thaikeyboard-3line/style/images/keyboard.png",
+    "128": "/FXOS_thaikeyboard-3line/style/images/keyboard.png"
   },
     "role": "input",
 	"inputs": {
