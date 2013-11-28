@@ -13,6 +13,7 @@
     "120": "/style/images/keyboard.png",
     "128": "/style/images/keyboard.png"
   },
+    "role": "input",
 	"inputs": {
     "english": {
       "launch_path": "/index.html#en",
