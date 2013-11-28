@@ -1,9 +1,24 @@
 {
     "name": "Thai keyboard - 3 line",
     "package_path" : "http://pureexe.github.io/FXOS_thaikeyboard-3line/th3line.zip",
-    "version": "1",
-    "developer": {
+    "version": "1.0",
+	"size":1056768,
+	"developer": {
         "name": "Pakkapon Phongthawee",
         "url": "http://github.com/pureexe"
+    },
+	"icons": {
+    "60": "/style/images/keyboard.png",
+    "90": "/style/images/keyboard.png",
+    "120": "/style/images/keyboard.png",
+    "128": "/style/images/keyboard.png"
+  },
+	"inputs": {
+    "english": {
+      "launch_path": "/index.html#en",
+      "name": "Thai - 3 line",
+      "description": "Thai - 3 line",
+      "types": ["text", "url", "number"]
     }
+  }
 }
