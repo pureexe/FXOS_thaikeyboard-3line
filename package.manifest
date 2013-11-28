@@ -1,0 +1,9 @@
+{
+    "name": "Thai keyboard - 3 line",
+    "package_path" : "http://pureexe.github.io/FXOS_thaikeyboard-3line/th3line.zip",
+    "version": "1",
+    "developer": {
+        "name": "Pakkapon Phongthawee",
+        "url": "http://github.com/pureexe"
+    }
+}
