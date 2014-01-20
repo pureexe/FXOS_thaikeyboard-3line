@@ -1,8 +1,8 @@
 {
-    "name": "Thai keyboard - 3 line",
-    "package_path" : "http://pureexe.github.io/FXOS_thaikeyboard-3line/th3line.zip",
+    "name": "Thai keyboard - 4 line",
+    "package_path" : "http://pureexe.github.io/FXOS_thaikeyboard-3line/th4line.zip",
     "version": "1.0",
-	"size":1056768,
+	"size":59730,
 	"developer": {
         "name": "Pakkapon Phongthawee",
         "url": "http://github.com/pureexe"
@@ -13,17 +13,14 @@
     }
   },
 	"icons": {
-    "60": "/FXOS_thaikeyboard-3line/style/images/keyboard.png",
-    "90": "/FXOS_thaikeyboard-3line/style/images/keyboard.png",
-    "120": "/FXOS_thaikeyboard-3line/style/images/keyboard.png",
     "128": "/FXOS_thaikeyboard-3line/style/images/keyboard.png"
   },
     "role": "input",
 	"inputs": {
     "english": {
       "launch_path": "/index.html#en",
-      "name": "Thai - 3 line",
-      "description": "Thai - 3 line",
+      "name": "ไทย - ๔ แถว",
+      "description": "ไทย - ๔ แถว",
       "types": ["text", "url", "number"]
     }
   }
