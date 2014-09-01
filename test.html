@@ -1,0 +1,273 @@
+<!-- Copyright @2014 - Pakkapon Phongthawee -->
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <title>ใครไลค์ฉันมากสุด : pure's app</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
+    <script src="//code.jquery.com/jquery-1.11.0.min.js"></script>
+	<script src="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+    <style>
+        body { padding-top: 70px;
+                padding-bottom: 70px;
+        }
+    </style>
+</head>
+<body>
+<div id="fb-root"></div>
+    <script>
+        /// Utility Function
+        $._GET = function(name, url) {
+            if (!url) {
+                url = window.location.href;
+            }
+            var results = new RegExp('[\\?&]' + name + '=([^&#]*)').exec(url);
+            if (!results) { 
+                return 0; 
+            }
+            return results[1] || 0;
+        }
+        
+        $._DateDiff = function datediff(strDate1, strDat2) {
+            if (!strDat2) {
+                return (Date.now()/1000-Date.parse(strDate1)/1000)/(60*60*24);
+            } else {
+                return (Date.parse(strDate2)/1000-Date.parse(strDate1)/1000)/(60*60*24);
+            }
+        }                
+        // Global Variable
+        var thread = [];
+        var EOF = false;
+        var until="";
+        var t_until="";
+        var user_likes={};
+        var user_likes_list=[];
+        var result_likes=[];
+        var msg_fetch_cnt=0;
+        
+        // Facebook Connector         
+        window.fbAsyncInit = function() {
+            FB.init({
+                appId   : '351070565012663', // pure's app id
+                xfbml      : true,
+                  version    : 'v2.0'
+            });
+            FB.getLoginStatus(function(response) {
+                if (response.status === 'connected') {
+                        var thread_access = function(){
+                            thread.forEach(function(p_thread){
+                                var likes =[];
+                                var getlikecallback = function(res){
+                                    var can_recursion=false;
+                                    if( typeof res.data !== 'undefined'){
+                                        res.data.forEach(function (dres){
+                                            likes.push(dres);
+                                            can_recursion = true;
+                                        });
+                                    }
+                                    if(can_recursion){
+                                        FB.api('/'+p_thread.id+'/likes&after='+res.paging.cursors.after,getlikecallback);
+                                    } else {
+                                        likes.forEach(function (user){
+                                            if(typeof user_likes[user.id]==='undefined'){
+                                                user_likes[user.id]={"count":1,"id":user.id,"name":user.name};
+                                                user_likes_list.push(user.id);
+                                            }else{
+                                                user_likes[user.id]['count']++;
+                                            }
+                                        })
+                                        msg_fetch_cnt++;
+                                        $("#loading_txt").html("อ่านไลค์แล้ว "+msg_fetch_cnt+" / "+thread.length);
+                                        //console.log("Fetch : "+msg_fetch_cnt+"/"+thread.length);
+                                        if(msg_fetch_cnt==thread.length){
+                                        //console.log("Start merge")
+                                            user_likes_list.forEach(function (ea){
+                                                result_likes.push(user_likes[ea]);
+                                            })
+                                            delete user_likes;
+                                            delete user_likes_list;
+                                            result_likes.sort(function(a,b){
+                                                if(a.count!=b.count){
+                                                    return b.count-a.count;
+                                                }else{
+                                                    if(a.name<b.name){
+                                                        return -1;
+                                                    } else {
+                                                        return 1;
+                                                    }
+                                                } 
+                                            });
+                                            var tabletxt="";
+                                            var cnt = 1;
+                                            result_likes.forEach(function(a){
+                                                tabletxt+="<tr><td>"+ cnt + "</td><td class='hidden-xs'><img src='https://graph.facebook.com/"+a.id+"/picture' ></img></td><td>"+a.name+"</td><td>"+a.count+"</td></tr>";
+                                                cnt++;
+                                            })
+                                            $('#like_table').append(tabletxt);
+                                            $('#like_table tr:eq(1)').remove();
+                                            $("#postface_txt").html("โพสบนเฟสบุ๊ค");
+                                            $("#postfacebtn").removeClass("btn-warning");
+                                            $("#postfacebtn").addClass("btn-primary");
+                                            //console.log(JSON.stringify(result_likes));
+                                        }
+                                    }
+                                } 
+                                FB.api('/'+p_thread.id+'/likes',getlikecallback);
+                            })
+                        }
+                        var getpostcallback = function (msg){
+                            var day = 30;
+                            if($._GET("day")){
+                                day=$._GET("day");
+                            }
+                            if(day == 7){
+                                $("#fetchtimedisplay").html("เวลา 7 วัน");
+								time_ago = "1 สัปดาห์";
+							}
+							else if(day == 30){
+                                $("#fetchtimedisplay").html("เวลา 1 เดือน");
+                                time_ago = "1 เดือน";
+                            } else if(day == 90) {
+                                $("#fetchtimedisplay").html("เวลา 3 เดือน");
+								time_ago = " 3 เดือน";
+							} else if(day == 180) {
+                                $("#fetchtimedisplay").html("เวลา 6 เดือน");
+								time_ago = " 6 เดือน";
+							} else if(day == 365){
+                                $("#fetchtimedisplay").html("เวลา 1 ปี");
+								time_ago = " 1 ปีก";
+							}else {
+							$("#fetchtimedisplay").html("เวลา "+day+" วัน");
+							    time_ago = day+" วัน";
+							}
+                           
+                            msg.data.forEach(function(p){
+                                if($._DateDiff(p.created_time)<=day){
+                                    thread.push(p); 
+                                }else {
+                                    EOF = true;
+                                //console.log("PAUSE");
+                                }
+                            });
+                            $("#loading_txt").html("โหลดแล้ว "+thread.length+" โพส");
+                            //console.log(thread.length);
+                            until = $._GET("until",msg.paging.next);
+                            if(EOF==true){
+                                thread_access();
+                            }else {
+                                FB.api('/me/posts?fields=id&until='+until,getpostcallback);
+                            }
+                        }
+                    FB.api('/me/posts?fields=id',getpostcallback);
+                } else {
+                  FB.login(function(){}, {scope: 'publish_actions,publish_stream'});
+                }
+            })
+        };
+
+    (function(d, s, id){
+        var js, fjs = d.getElementsByTagName(s)[0];
+        if (d.getElementById(id)) {return;}
+        js = d.createElement(s); js.id = id;
+        js.src = "//connect.facebook.net/en_US/sdk.js";
+        fjs.parentNode.insertBefore(js, fjs);
+    }(document, 'script', 'facebook-jssdk'));
+    var gotop = function(){
+        $(function() {
+            $('body').scrollTop(0);
+        });
+    }
+    var postfacebook = function() {
+        if($("#postfacebtn").hasClass("btn-primary")){
+            $("#postface_txt").html("กำลังโพส...");
+           $("#postfacebtn").removeClass("btn-primary");
+           $("#postfacebtn").addClass("btn-warning");
+            var txt_postmsglength = 0;
+            if(result_likes.length>=5){
+                txt_postmsglength= 5;
+            } else {
+                txt_postmsglength= result_likes.length;
+            }
+            var i;
+            var txt_postmsg = 'ใน '+time_ago+'ที่ผ่านมาฉันโพส '+thread.length+' โพส\nเพื่อนที่เข้ามาไลค์มากที่สุดดังนี้';;
+            for(i=0;i<txt_postmsglength;i++){
+                txt_postmsg+='\nอันดับ '+(i+1)+' ได้แก่ '+result_likes[i].name+' ไลค์ '+result_likes[i].count+' ครั้ง ';
+            }
+            txt_postmsg+='\nอยากรู้อันดับเพื่อนที่เข้ามาไลค์คุณ เข้ามาที่ https://www.facebook.com/appmadebypure #pureapp';
+            FB.api('/me/feed', 'post', { message: txt_postmsg},function(res) {
+		            $("#postfacebtn").removeClass("btn-warning");
+                    $("#postfacebtn").addClass("btn-success");
+                    $("#postface_txt").html("โพสสำเร็จ");
+				    //console.log('post to facebook sussessfully');
+        		});
+        }
+    }
+
+</script>
+<nav class="navbar navbar-default navbar-fixed-top" role="navigation">
+  <div class="container-fluid">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="#">ใครไลค์ฉันมากสุด</a>
+    </div>
+    <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+      <ul class="nav navbar-nav navbar-right">
+        <li><a href="https://www.facebook.com/appmadebypure">หน้าแรก</a></li>
+        <li><a href="https://www.facebook.com/appmadebypure">แฟนเพจ</a></li>
+        <li><a><div class="fb-like" data-href="https://purelink.koding.io/toplike_thismonth" data-layout="button_count" data-action="like" data-show-faces="true" data-share="true"></div></a></li>
+      </ul>
+    </div><!-- /.navbar-collapse -->
+  </div><!-- /.container-fluid -->
+</nav>
+<div class="container">
+
+    <div class="btn-group">
+        <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+            <span id="fetchtimedisplay">กำลังโหลด</span> <span class="caret"></span>
+         </button>
+        <ul class="dropdown-menu" role="menu">
+            <li><a href="?day=7">7 วัน</a></li>
+            <li class="divider"></li>
+            <li><a href="?day=30">1 เดือน</a></li>
+            <li class="divider"></li>
+            <li><a href="?day=90">3 เดือน</a></li>
+            <li class="divider"></li>
+            <li><a href="?day=180">6 เดือน</a></li>
+            <li class="divider"></li>
+            <li><a href="?day=365">1 ปี</a></li>
+        </ul>
+    </div>
+
+ <div style="float:right;">
+        <button onclick="postfacebook()" class="btn btn-warning" id="postfacebtn"><span id="postface_txt">กำลังโหลด...</span></button>
+</div>
+    
+    <table class="table table-hover" id="like_table">
+        <thead><tr><th class="">#</th><th class="hidden-xs">รูป</th><th class="">ชื่อ</th><th class="">ไลค์</th></tr></thead>
+        <tr><td colspan="4"><center><p id="loading_txt">โหลดแล้ว 0 โพส</p><img alt="" src="data:image/gif;base64,R0lGODlhEAALAPQAAP///0Ve3uPn+dzh+O/x+0lh3kVe3mZ646Ov7oqa6szT9V1z4nqM56m0742c6s/V9WB14kdg3n2P5+zu+uLm+fb3/G2B5eXo+fX2/MnQ9LnC8tjd9/Lz+wAAAAAAAAAAACH+GkNyZWF0ZWQgd2l0aCBhamF4bG9hZC5pbmZvACH5BAALAAAAIf8LTkVUU0NBUEUyLjADAQAAACwAAAAAEAALAAAFLSAgjmRpnqSgCuLKAq5AEIM4zDVw03ve27ifDgfkEYe04kDIDC5zrtYKRa2WQgAh+QQACwABACwAAAAAEAALAAAFJGBhGAVgnqhpHIeRvsDawqns0qeN5+y967tYLyicBYE7EYkYAgAh+QQACwACACwAAAAAEAALAAAFNiAgjothLOOIJAkiGgxjpGKiKMkbz7SN6zIawJcDwIK9W/HISxGBzdHTuBNOmcJVCyoUlk7CEAAh+QQACwADACwAAAAAEAALAAAFNSAgjqQIRRFUAo3jNGIkSdHqPI8Tz3V55zuaDacDyIQ+YrBH+hWPzJFzOQQaeavWi7oqnVIhACH5BAALAAQALAAAAAAQAAsAAAUyICCOZGme1rJY5kRRk7hI0mJSVUXJtF3iOl7tltsBZsNfUegjAY3I5sgFY55KqdX1GgIAIfkEAAsABQAsAAAAABAACwAABTcgII5kaZ4kcV2EqLJipmnZhWGXaOOitm2aXQ4g7P2Ct2ER4AMul00kj5g0Al8tADY2y6C+4FIIACH5BAALAAYALAAAAAAQAAsAAAUvICCOZGme5ERRk6iy7qpyHCVStA3gNa/7txxwlwv2isSacYUc+l4tADQGQ1mvpBAAIfkEAAsABwAsAAAAABAACwAABS8gII5kaZ7kRFGTqLLuqnIcJVK0DeA1r/u3HHCXC/aKxJpxhRz6Xi0ANAZDWa+kEAA7AAAAAAAAAAAA" /></center></td><tr>
+    </table>
+</div>
+
+<nav class="navbar navbar-default navbar-fixed-bottom" role="navigation" style="height: 50px;">
+  <div class="container">
+ <div class="">
+    <ul class="nav navbar-nav">
+     <li><a class="" href="#">พื้นที่ว่างสำหรับโฆษณา >100,000 ครั้งต่อวัน</a></li>
+     </ul>
+    </div>
+    <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+      <ul class="nav navbar-nav navbar-right">
+        <li><a href="https://www.facebook.com/appmadebypure">© 2014 pure's app</a></li>
+        <li><a href="javascript:gotop()">กลับไปบนสุด</a></li>
+      </ul>
+    </div> 
+  </div>
+</nav>
+</body>
+</html>
